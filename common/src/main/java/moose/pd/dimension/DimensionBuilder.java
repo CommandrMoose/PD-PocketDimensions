@@ -1,11 +1,8 @@
-package moose.pd.helper;
+package moose.pd.dimension;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import com.mojang.serialization.Lifecycle;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import moose.pd.dimension.DimensionTypes;
-import moose.pd.mixins.MinecraftServerAccess;
 import moose.pd.network.messages.SyncLevelListMessage;
 import moose.pd.world.chunk.TempleChunkGenerator;
 import net.minecraft.core.BlockPos;
@@ -30,12 +27,11 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
 
 import javax.annotation.Nullable;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 
-public class DimensionHelper {
+public class DimensionBuilder {
 
     public static ServerLevel getOrBuildDimension(Level level, ResourceKey<Level> id) {
 
@@ -44,26 +40,18 @@ public class DimensionHelper {
             Map<ResourceKey<Level>, ServerLevel> map = serverWorld.getServer().levels;
             @Nullable ServerLevel existingLevel = map.get(id);
 
-
             // if the world already exists, return it
             return existingLevel == null
                     ? buildDimensionGlobal(level, id)
                     : existingLevel;
         }
 
-
-
         return null;
 
     }
 
-    @ExpectPlatform
-    public static ServerLevel buildDimension(Level level, ResourceKey<Level> id) {
-        throw new RuntimeException("Uh!");
-    }
-
     public static ServerLevel buildDimensionGlobal(Level level, ResourceKey<Level> id) {
-        BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory = DimensionHelper::formLevelStem;
+        BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory = DimensionBuilder::formLevelStem;
 
         MinecraftServer server = level.getServer();
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);

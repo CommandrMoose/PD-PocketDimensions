@@ -2,15 +2,13 @@ package moose.pd.blockentities;
 
 import moose.pd.Pd;
 import moose.pd.blocks.temple.BaseTempleBlock;
-import moose.pd.helper.DimensionHelper;
-import moose.pd.network.messages.UpdateShellMessage;
+import moose.pd.dimension.DimensionBuilder;
 import moose.pd.registries.BlockEntityRegistry;
 import moose.pd.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -23,10 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.BlockHitResult;
@@ -68,7 +64,7 @@ public class TempleBlockEntity extends BlockEntity implements BlockEntityTicker<
                     sendUpdates();
 
                 } else {
-                    ServerLevel temple = DimensionHelper.getOrBuildDimension(level, ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(Pd.MOD_ID, uuid)));
+                    ServerLevel temple = DimensionBuilder.getOrBuildDimension(level, ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(Pd.MOD_ID, uuid)));
                     if (temple != null) {
                         rebuildReturnBlock(temple, blockState.getValue(BaseTempleBlock.FACING));
                         ServerPlayer sp = (ServerPlayer) level.getPlayerByUUID(player.getUUID());
@@ -88,7 +84,7 @@ public class TempleBlockEntity extends BlockEntity implements BlockEntityTicker<
                     stack.setCount(stack.getCount() - 1);
                     uuid = UUID.randomUUID().toString();
 
-                    ServerLevel temple = DimensionHelper.getOrBuildDimension(level, ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(Pd.MOD_ID, uuid)));
+                    ServerLevel temple = DimensionBuilder.getOrBuildDimension(level, ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(Pd.MOD_ID, uuid)));
                     buildInternal(temple, blockHitResult.getDirection());
 
                 } else {

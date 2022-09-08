@@ -33,19 +33,4 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void updateShell(ResourceKey<Level> level, BlockPos pos, TempleShells shell) {
-        if (Minecraft.getInstance().player == null || Minecraft.getInstance().player.connection.levels() == null)
-            return;
-
-        var server = Minecraft.getInstance().player.connection.getLevel().getServer();
-
-        if (server.levels.containsKey(level)) {
-            @Nullable ServerLevel existingLevel = server.levels.get(level);
-            TempleBlockEntity templeBlockEntity = (TempleBlockEntity) existingLevel.getBlockEntity(pos);
-            templeBlockEntity.getBlockState().setValue(BaseTempleBlock.SHELL_ID, shell.ordinal());
-        }
-
-    }
-
-
 }

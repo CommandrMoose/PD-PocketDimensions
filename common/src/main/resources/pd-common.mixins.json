@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "moose.pd.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+    "MinecraftServerAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -4,6 +4,7 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import moose.pd.Pd;
 import moose.pd.client.models.temple.BlueBoxExternalModel;
 import moose.pd.client.models.temple.GreekExternalModel;
+import moose.pd.client.models.temple.SuitcaseExternalModel;
 import moose.pd.client.models.temple.TempleExternalModel;
 import moose.pd.util.PlatformWarning;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -19,11 +20,13 @@ public class ModelRegistry {
     public static ModelLayerLocation TEMPLE_EXTERNAL;
     public static ModelLayerLocation GREEK_EXTERNAL;
     public static ModelLayerLocation BLUE_BOX_EXTERNAL;
+    public static ModelLayerLocation SUITCASE_EXTERNAL;
 
     public static void init() {
         TEMPLE_EXTERNAL = register(new ModelLayerLocation(new ResourceLocation(Pd.MOD_ID, "temple"), "temple"), TempleExternalModel::meshLayer);
         GREEK_EXTERNAL = register(new ModelLayerLocation(new ResourceLocation(Pd.MOD_ID, "greek"), "greek"), GreekExternalModel::meshLayer);
         BLUE_BOX_EXTERNAL = register(new ModelLayerLocation(new ResourceLocation(Pd.MOD_ID, "blue_box"), "blue_box"), BlueBoxExternalModel::meshLayer);
+        SUITCASE_EXTERNAL = register(new ModelLayerLocation(new ResourceLocation(Pd.MOD_ID, "suitcase"), "suitcase"), SuitcaseExternalModel::meshLayer);
     }
 
 

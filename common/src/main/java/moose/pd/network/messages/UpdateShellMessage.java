@@ -4,7 +4,7 @@ import moose.pd.network.MessageS2C;
 import moose.pd.network.MessageType;
 import moose.pd.network.PdNetwork;
 import moose.pd.network.handler.ClientPacketHandler;
-import moose.pd.registries.blockentities.TempleShells;
+import moose.pd.blockentities.TempleShells;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;

@@ -3,8 +3,8 @@ package moose.pd.registries;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import moose.pd.Pd;
-import moose.pd.registries.blockentities.TempleBlockEntity;
-import moose.pd.registries.blockentities.TempleReturnBlockEntity;
+import moose.pd.blockentities.TempleBlockEntity;
+import moose.pd.blockentities.TempleReturnBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 

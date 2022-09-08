@@ -5,11 +5,12 @@ import com.mojang.math.Vector3f;
 import moose.pd.Pd;
 import moose.pd.client.models.temple.BlueBoxExternalModel;
 import moose.pd.client.models.temple.GreekExternalModel;
-import moose.pd.registries.blockentities.TempleBlockEntity;
+import moose.pd.blockentities.TempleBlockEntity;
 import moose.pd.blocks.temple.BaseTempleBlock;
 import moose.pd.client.models.ModelRegistry;
+import moose.pd.client.models.temple.SuitcaseExternalModel;
 import moose.pd.client.models.temple.TempleExternalModel;
-import moose.pd.registries.blockentities.TempleShells;
+import moose.pd.blockentities.TempleShells;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TempleExternalRenderer implements BlockEntityRenderer<TempleBlockEntity>, BlockEntityRendererProvider<TempleBlockEntity> {
@@ -25,15 +25,18 @@ public class TempleExternalRenderer implements BlockEntityRenderer<TempleBlockEn
     private static TempleExternalModel templeModel;
     private static GreekExternalModel greekModel;
     private static BlueBoxExternalModel blueBoxModel;
+    private static SuitcaseExternalModel suitcaseModel;
     private static ResourceLocation templeTexture = new ResourceLocation(Pd.MOD_ID, "textures/shell/shell_temple.png");
     private static ResourceLocation greekTexture = new ResourceLocation(Pd.MOD_ID, "textures/shell/shell_greek.png");
     private static ResourceLocation blueBoxTexture = new ResourceLocation(Pd.MOD_ID, "textures/shell/shell_blue_box.png");
+    private static ResourceLocation suitcaseTexture = new ResourceLocation(Pd.MOD_ID, "textures/shell/shell_suitcase.png");
 
 
     public TempleExternalRenderer(BlockEntityRendererProvider.Context context) {
         templeModel = new TempleExternalModel(context.bakeLayer(ModelRegistry.TEMPLE_EXTERNAL));
         greekModel = new GreekExternalModel(context.bakeLayer(ModelRegistry.GREEK_EXTERNAL));
         blueBoxModel = new BlueBoxExternalModel(context.bakeLayer(ModelRegistry.BLUE_BOX_EXTERNAL));
+        suitcaseModel = new SuitcaseExternalModel(context.bakeLayer(ModelRegistry.SUITCASE_EXTERNAL));
 
     }
 
@@ -49,9 +52,6 @@ public class TempleExternalRenderer implements BlockEntityRenderer<TempleBlockEn
         float rotation = ((Direction)blockstate.getValue(BaseTempleBlock.FACING)).toYRot();
         poseStack.mulPose(Vector3f.YP.rotationDegrees(rotation));
 
-        System.out.println(blockstate.getValue(BaseTempleBlock.SHELL_ID));
-
-
         if (blockstate.getValue(BaseTempleBlock.SHELL_ID) == TempleShells.TEMPLE.ordinal()) {
             this.templeModel.renderToBuffer(poseStack, multiBufferSource.getBuffer(RenderType.entityTranslucent(templeTexture)), i, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
@@ -61,7 +61,13 @@ public class TempleExternalRenderer implements BlockEntityRenderer<TempleBlockEn
         }
 
         if (blockstate.getValue(BaseTempleBlock.SHELL_ID) == TempleShells.BLUE_BOX.ordinal()) {
+            poseStack.scale(0.7f,0.7f,0.7f);
+            poseStack.translate(0F, 0.7F, 0F);
             this.blueBoxModel.renderToBuffer(poseStack, multiBufferSource.getBuffer(RenderType.entityTranslucent(blueBoxTexture)), i, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+        }
+
+        if (blockstate.getValue(BaseTempleBlock.SHELL_ID) == TempleShells.SUIT_CASE.ordinal()) {
+            this.suitcaseModel.renderToBuffer(poseStack, multiBufferSource.getBuffer(RenderType.entityTranslucent(suitcaseTexture)), i, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         }
 
 

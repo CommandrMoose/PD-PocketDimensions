@@ -1,9 +1,8 @@
 package moose.pd.network.handler;
 
 import moose.pd.blocks.temple.BaseTempleBlock;
-import moose.pd.network.messages.SyncLevelListMessage;
-import moose.pd.registries.blockentities.TempleBlockEntity;
-import moose.pd.registries.blockentities.TempleShells;
+import moose.pd.blockentities.TempleBlockEntity;
+import moose.pd.blockentities.TempleShells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;

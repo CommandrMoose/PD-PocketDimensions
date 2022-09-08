@@ -1,10 +1,11 @@
 package moose.pd.blocks.temple;
 
-import moose.pd.registries.blockentities.TempleBlockEntity;
+import moose.pd.blockentities.TempleBlockEntity;
+import moose.pd.blockentities.TempleShells;
 import moose.pd.registries.BlockRegistry;
-import moose.pd.registries.blockentities.TempleShells;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,23 +18,21 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Optional;
-
 public class BaseTempleBlock extends BaseEntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final IntegerProperty SHELL_ID = IntegerProperty.create("shell", 0, 20);
+    public static final IntegerProperty SHELL_ID = IntegerProperty.create("shell", 0, TempleShells.values().length);
 
     public BaseTempleBlock(Properties properties) {
 
@@ -46,8 +45,6 @@ public class BaseTempleBlock extends BaseEntityBlock {
 
         TempleBlockEntity entity = (TempleBlockEntity) level.getBlockEntity(blockPos);
         entity.onRightClick(blockState, level, blockPos, player, interactionHand, blockHitResult);
-        level.blockUpdated(blockPos, this);
-
         return InteractionResult.SUCCESS;
     }
 
@@ -103,5 +100,15 @@ public class BaseTempleBlock extends BaseEntityBlock {
         level.addFreshEntity(itemEntity);
 
         super.playerWillDestroy(level, blockPos, blockState, player);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
+        return (level1, blockPos, blockState, t) -> {
+            if (t instanceof TempleBlockEntity templeBlockEntity) {
+                templeBlockEntity.tick(pLevel, blockPos, blockState, templeBlockEntity);
+            }
+        };
     }
 }

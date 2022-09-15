@@ -2,6 +2,7 @@ package moose.pd.registries;
 
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
+import moose.pd.blocks.debug.HallwayGeneratorBlock;
 import moose.pd.blocks.internal.TempleReturnBlock;
 import moose.pd.blocks.temple.BaseTempleBlock;
 import net.minecraft.core.Registry;
@@ -19,7 +20,8 @@ public class BlockRegistry {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Pd.MOD_ID, Registry.BLOCK_REGISTRY);
 
-    public static final RegistrySupplier<Block> TEMPLE_BLOCK = register("temple_block", () -> new BaseTempleBlock(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion()), true);
+    public static final RegistrySupplier<Block> DEBUG_HALLWAY_BLOCK = register("hallway_gen", () -> new HallwayGeneratorBlock(BlockBehaviour.Properties.copy(Blocks.STONE)), true);
+    public static final RegistrySupplier<Block> TEMPLE_BLOCK = register("temple_block", () -> new BaseTempleBlock(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion().strength(3f)), true);
     public static final RegistrySupplier<Block> TEMPLE_RETURN_BLOCK = register("temple_return_block", () -> new TempleReturnBlock(BlockBehaviour.Properties.copy(Blocks.BARRIER)), false);
 
     private static <T extends Block> RegistrySupplier<T> register(String id, Supplier<T> blockSupplier, boolean buildItem) {

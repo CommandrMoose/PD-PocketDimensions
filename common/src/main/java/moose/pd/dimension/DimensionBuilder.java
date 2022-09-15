@@ -5,6 +5,7 @@ import com.mojang.serialization.Lifecycle;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import moose.pd.network.messages.SyncLevelListMessage;
 import moose.pd.world.chunk.TempleChunkGenerator;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -101,7 +102,6 @@ public class DimensionBuilder {
         chunkListener.updateSpawnPos(new ChunkPos(blockpos));
         ServerChunkCache serverchunkcache = (ServerChunkCache) level.getChunkSource();
         serverchunkcache.getLightEngine().setTaskPerBatch(500);
-        //this.nextTickTime = Util.getMillis();
         serverchunkcache.addRegionTicket(TicketType.START, new ChunkPos(blockpos), 11, Unit.INSTANCE);
 
         new SyncLevelListMessage(newLevel.dimension(), true).sendToAll((ServerLevel) level);

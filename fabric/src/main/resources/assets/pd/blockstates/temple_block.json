@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "": {
+            "model": "pd:item/temple_block"
+        }
+    }
+}

@@ -3,20 +3,17 @@ package moose.pd.world.chunk;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import moose.pd.Pd;
+import moose.pd.world.ChunkGenerators;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.*;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -29,22 +26,24 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class TempleChunkGenerator extends ChunkGenerator {
 
+    public static final Codec<TempleChunkGenerator> CODEC = RecordCodecBuilder
+            .create(instance -> commonCodec(instance).and(RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter((thing) -> thing.BIOME_REG))
+                    .apply(instance, instance.stable(TempleChunkGenerator::new)));
+
     public final Registry<Biome> BIOME_REG;
     public final Registry<StructureSet> SET_REG;
-    private final Random random;
+    public final Random RANDOM;
 
+    // Some parameter values.
     public final int distanceBetweenRooms = 9;
-    public final int arsChunkSize = 3;
-    private final int chunkSize = 1;
-
+    //public final int arsChunkSize = TardisARSPiece.LOCKED_PIECE_CHUNK_SIZE;
+    private final int chunkSize = 16;
 
     private static String[] LOCATIONS = new String[] {
             "bf4fd009-3a6b-43e7-b7eb-0af7f040fdec",
@@ -60,15 +59,82 @@ public class TempleChunkGenerator extends ChunkGenerator {
             "e8ebb10f-41be-40cd-bd7d-4f7f58d00e39"
     };
 
-    public final static Codec<TempleChunkGenerator> CODEC = RecordCodecBuilder
-            .create(instance -> commonCodec(instance).and(RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter((generator) -> generator.BIOME_REG))
-                    .apply(instance, instance.stable(TempleChunkGenerator::new)));
 
     public TempleChunkGenerator(Registry<StructureSet> setReg, Registry<Biome> biomeReg) {
-        super(setReg, Optional.empty(), new FixedBiomeSource(biomeReg.getHolderOrThrow(Biomes.PLAINS)));
+        super(setReg, Optional.empty(), new FixedBiomeSource(biomeReg.getHolderOrThrow(ChunkGenerators.TEMPLE_BIOME)));
         this.BIOME_REG = biomeReg;
         this.SET_REG = setReg;
-        this.random = new Random();
+        this.RANDOM = new Random();
+    }
+
+    @Override
+    public void applyBiomeDecoration(WorldGenLevel pLevel, ChunkAccess pChunk, StructureManager pStructureManager) {
+
+        if (pChunk.getPos().x == 0 && pChunk.getPos().z == 0) {
+            //placePieceInWorld(pLevel, getRandomConsoleRoomPiece().getResourceLocation(), pChunk);
+        } else {
+            // For each ARS chunk size interval.
+            if(pChunk.getPos().x % 3 == 0 && pChunk.getPos().z % 3 == 0){
+
+                // Determine if the piece is a room or a corridor
+                ResourceLocation pieceToPlace = (isChunkAtRoomInterval(pChunk.getPos())) ? new ResourceLocation(Pd.MOD_ID, LOCATIONS[this.RANDOM.nextInt(LOCATIONS.length)]) : new ResourceLocation(Pd.MOD_ID, LOCATIONS[this.RANDOM.nextInt(LOCATIONS.length)]);
+                placePieceInWorld(pLevel, pieceToPlace, pChunk);
+            }
+        }
+    }
+
+    private void placePieceInWorld(WorldGenLevel level, ResourceLocation pieceToPlace, ChunkAccess pChunk) {
+        // Place the desired piece.
+        level.getLevel().getStructureManager().get(pieceToPlace).ifPresent(structure -> {
+            BlockPos pos = pChunk.getPos().getBlockAt(0, 64,0).north(chunkSize).west(chunkSize); // Must be offset to utilize all 3x3 chunks.
+            StructurePlaceSettings settings = new StructurePlaceSettings();
+            structure.placeInWorld(level, pos, pos, settings, level.getRandom(), 1);
+        });
+    }
+
+
+    /**
+     * Determines if the chunk is a room chunk
+     * @param pos the position of the chunk
+     * @return is the chunk a room chunk
+     */
+    private boolean isChunkAtRoomInterval(ChunkPos pos) {
+        return pos.x % distanceBetweenRooms == 0 && pos.z % distanceBetweenRooms == 0;
+    }
+
+//    /**
+//     * Fetch a random corridor piece to populate a chunk
+//     * @return random corridor ARS piece from the registry.
+//     */
+//    private TardisARSPiece getRandomCorridorPiece() {
+//        return TardisARSPieceRegistry.CORRIDORS.get(this.RANDOM.nextInt(TardisARSPieceRegistry.CORRIDORS.size()));
+//    }
+//
+//    /**
+//     * Fetch a random console room piece to populate a chunk
+//     * @return random console room ARS piece from the registry.
+//     */
+//    private TardisARSPiece getRandomConsoleRoomPiece() {
+//        return TardisARSPieceRegistry.CONSOLE_ROOMS.get(this.RANDOM.nextInt(TardisARSPieceRegistry.CONSOLE_ROOMS.size()));
+//    }
+//
+//    /**
+//     * Fetch a random room piece to populate a chunk
+//     * @return random room ARS piece from the registry.
+//     */
+//    private TardisARSPiece getRandomRoomPiece() {
+//        return TardisARSPieceRegistry.ROOMS.get(this.RANDOM.nextInt(TardisARSPieceRegistry.ROOMS.size()));
+//    }
+
+
+    @Override
+    public void createStructures(RegistryAccess pRegistryAccess, RandomState pRandom, StructureManager pStructureManager, ChunkAccess pChunk, StructureTemplateManager pStructureTemplateManager, long pSeed) {
+        //super.createStructures(pRegistryAccess, pRandom, pStructureManager, pChunk, pStructureTemplateManager, pSeed);
+    }
+
+    @Override
+    public void createReferences(WorldGenLevel pLevel, StructureManager pStructureManager, ChunkAccess pChunk) {
+        //super.createReferences(pLevel, pStructureManager, pChunk);
     }
 
     @Override
@@ -77,25 +143,17 @@ public class TempleChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void applyCarvers(WorldGenRegion worldGenRegion, long l, RandomState randomState, BiomeManager biomeManager, StructureManager structureManager, ChunkAccess chunkAccess, GenerationStep.Carving carving) {
+    public void applyCarvers(WorldGenRegion p_223043_, long p_223044_, RandomState p_223045_, BiomeManager p_223046_, StructureManager p_223047_, ChunkAccess p_223048_, GenerationStep.Carving p_223049_) {
 
     }
 
     @Override
-    public void buildSurface(WorldGenRegion worldGenRegion, StructureManager structureManager, RandomState randomState, ChunkAccess chunkAccess) {
-        ResourceLocation location = new ResourceLocation(Pd.MOD_ID,  "mr-test");
-        ServerLevel level = worldGenRegion.getLevel();
-        level.getLevel().getStructureManager().get(location).ifPresent(structure -> {
-            BlockPos pos = chunkAccess.getPos().getBlockAt(0, 64,0);
-            StructurePlaceSettings settings = new StructurePlaceSettings();
-            structure.placeInWorld(level, pos, pos, settings, level.getRandom(), 1);
-        });
+    public void buildSurface(WorldGenRegion p_223050_, StructureManager p_223051_, RandomState p_223052_, ChunkAccess p_223053_) {
+
     }
 
     @Override
-    public void spawnOriginalMobs(WorldGenRegion worldGenRegion) {
-
-    }
+    public void spawnOriginalMobs(WorldGenRegion p_62167_) {}
 
     @Override
     public int getGenDepth() {
@@ -103,8 +161,8 @@ public class TempleChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
-        return CompletableFuture.completedFuture(chunkAccess);
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender p_223210_, RandomState p_223211_, StructureManager p_223212_, ChunkAccess access) {
+        return CompletableFuture.completedFuture(access);
     }
 
     @Override
@@ -118,7 +176,7 @@ public class TempleChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public int getBaseHeight(int i, int j, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
+    public int getBaseHeight(int p_223032_, int p_223033_, Heightmap.Types p_223034_, LevelHeightAccessor p_223035_, RandomState p_223036_) {
         return 0;
     }
 
@@ -127,37 +185,14 @@ public class TempleChunkGenerator extends ChunkGenerator {
 
         BlockState[] states = new BlockState[level.getHeight()];
         for(int i = 0; i < states.length; ++i){
-            states[i] = Blocks.AIR.defaultBlockState();
+            states[i] = Blocks.STONE.defaultBlockState();
         }
 
-        return new NoiseColumn(this.getMinY(), states);
+        //return new NoiseColumn(this.getMinY(), states);
 
-        //return new NoiseColumn(0, new BlockState[0]);
+        return new NoiseColumn(0, states);
     }
 
     @Override
-    public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos blockPos) {
-    }
-
-    @Override
-    public void applyBiomeDecoration(WorldGenLevel worldGenLevel, ChunkAccess chunkAccess, StructureManager structureManager) {
-        // Place the desired piece.
-
-    }
-
-    @Override
-    public void createStructures(RegistryAccess pRegistryAccess, RandomState pRandom, StructureManager pStructureManager, ChunkAccess pChunk, StructureTemplateManager pStructureTemplateManager, long pSeed) {
-        //super.createStructures(pRegistryAccess, pRandom, pStructureManager, pChunk, pStructureTemplateManager, pSeed);
-
-        //chunkAccess.setBlockState(chunkAccess.getPos().getBlockAt(0, 64,0), Blocks.STONE.defaultBlockState(), false);
-
-
-    }
-
-    @Override
-    public void createReferences(WorldGenLevel pLevel, StructureManager pStructureManager, ChunkAccess pChunk) {
-        //super.createReferences(pLevel, pStructureManager, pChunk);
-    }
-
-
+    public void addDebugScreenInfo(List<String> p_223175_, RandomState p_223176_, BlockPos p_223177_) {}
 }

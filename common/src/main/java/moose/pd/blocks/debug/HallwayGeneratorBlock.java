@@ -23,6 +23,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.UUID;
 
+import static com.ibm.icu.impl.ValidIdentifiers.Datatype.x;
+
 public class HallwayGeneratorBlock extends Block {
     public HallwayGeneratorBlock(Properties properties) {
         super(properties);
@@ -30,7 +32,7 @@ public class HallwayGeneratorBlock extends Block {
 
 
     @Override
-    public InteractionResult use(BlockState p_60503_, Level level, BlockPos blockPos, Player player, InteractionHand p_60507_, BlockHitResult result) {
+    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand p_60507_, BlockHitResult result) {
 
         if (!level.isClientSide()) {
 
@@ -47,13 +49,15 @@ public class HallwayGeneratorBlock extends Block {
                 template.setAuthor("");
                 manager.save(new ResourceLocation(Pd.MOD_ID,name));
 
+                System.out.println(level.getBlockState(blockPos.above()).getValues().toString());
+
                 player.displayClientMessage(Component.translatable("Generated structure at: " + name), false);
             }
 
 
         }
 
-        return super.use(p_60503_, level, blockPos, player, p_60507_, result);
+        return super.use(blockState, level, blockPos, player, p_60507_, result);
     }
 
 }
